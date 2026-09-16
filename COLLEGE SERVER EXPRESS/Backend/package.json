@@ -1,0 +1,9 @@
+{
+  "name": "abc-college-website-server",
+  "version": "1.0.0",
+  "description": "Simple ABC College website server using Node.js built-in http module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
