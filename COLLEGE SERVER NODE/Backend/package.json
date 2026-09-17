@@ -1,9 +1,15 @@
 {
-  "name": "abc-college-website-server",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "Simple ABC College website server using Node.js built-in http module",
+  "description": "",
   "main": "server.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }

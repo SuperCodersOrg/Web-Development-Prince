@@ -1,0 +1,11 @@
+[
+  { "id": 1, "name": "Prince Sharma", "course": "BCA", "year": "2nd Year" },
+  { "id": 2, "name": "Rahul", "course": "B.Tech CSE", "year": "1st Year" },
+  { "id": 3, "name": "yogesh", "course": "BCA-AI", "year": "2015" },
+  {
+    "id": 4,
+    "name": "princesharma0007's Org",
+    "course": "BCA-AI",
+    "year": "2015"
+  }
+]

@@ -1,0 +1,26 @@
+[
+    {
+        "course": "bca",
+        "name": "BCA",
+        "duration": "3 Years",
+        "description": "Bachelor of Computer Applications"
+    },
+    {
+        "course": "btech-cse",
+        "name": "B.Tech CSE",
+        "duration": "4 Years",
+        "description": "Computer Science and Engineering"
+    },
+    {
+        "course": "btech-ai-ml",
+        "name": "B.Tech AI & ML",
+        "duration": "4 Years",
+        "description": "Artificial Intelligence and Machine Learning"
+    },
+    {
+        "course": "bba",
+        "name": "BBA",
+        "duration": "3 Years",
+        "description": "Bachelor of Business Administration"
+    }
+]

@@ -1,44 +1,48 @@
-const express = require(express);const http = require('http');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
 const PORT = 3000;
 
-const dataFile = path.join(__dirname, 'data.json');
-const studentFile = path.join(__dirname, 'registered_students.txt');
+const dataFolder = path.join(__dirname, '..', 'Data');
 const frontendFolder = path.join(__dirname, '..', 'Frontend');
 
-function getData() {
-    const data = fs.readFileSync(dataFile, 'utf8');
+const collegeFile = path.join(dataFolder, 'college.json');
+const coursesFile = path.join(dataFolder, 'courses.json');
+const studentsFile = path.join(dataFolder, 'students.json');
+const facilitiesFile = path.join(dataFolder, 'facilities.json');
+const placementFile = path.join(dataFolder, 'placement.json');
+const contactFile = path.join(dataFolder, 'contact.json');
+
+function getData(file) {
+    const data = fs.readFileSync(file, 'utf8');
     return JSON.parse(data);
 }
 
-function saveData(data) {
-    fs.writeFileSync(dataFile, JSON.stringify(data));
+function saveData(file, data) {
+    fs.writeFileSync(file, JSON.stringify(data));
 }
 
-function sendJSON(res, data) {
-    res.writeHead(200, {
+function sendJSON(res, data, statusCode = 200) {
+    res.writeHead(statusCode, {
         'Content-Type': 'application/json'
     });
 
     res.end(JSON.stringify(data));
 }
 
-function sendFile(res, fileName) {
-
+function sendFile(res, fileName, contentType) {
     const filePath = path.join(frontendFolder, fileName);
 
-    fs.readFile(filePath, (error, data) => {
-
-        if (error) {
-            res.writeHead(500);
-            res.end('500 - Server Error');
+    fs.readFile(filePath, (err, data) => {
+        if (err) {
+            res.writeHead(404);
+            res.end('File not found');
             return;
         }
 
         res.writeHead(200, {
-            'Content-Type': 'text/html'
+            'Content-Type': contentType
         });
 
         res.end(data);
@@ -46,197 +50,133 @@ function sendFile(res, fileName) {
 }
 
 function registerStudent(req, res) {
-
     let body = '';
 
-    req.on('data', data => {
-        body += data;
+    req.on('data', (chunk) => {
+        body += chunk;
     });
 
     req.on('end', () => {
+        try {
+            const student = JSON.parse(body);
 
-        const student = JSON.parse(body);
-        const data = getData();
+            if (!student.name || !student.course || !student.year) {
+                sendJSON(res, {
+                    message: 'Please fill all details.'
+                }, 400);
+                return;
+            }
 
-        if (!student.name || !student.course || !student.year) {
+            const students = getData(studentsFile);
 
-            res.writeHead(400, {
-                'Content-Type': 'application/json'
-            });
+            const newStudent = {
+                id: students.length + 1,
+                name: student.name,
+                course: student.course,
+                year: student.year
+            };
 
-            res.end(JSON.stringify({
-                message: 'Please fill all details.'
-            }));
+            students.push(newStudent);
+            saveData(studentsFile, students);
 
-            return;
+            sendJSON(res, {
+                message: 'Student registered successfully.',
+                student: newStudent
+            }, 201);
+
+        } catch (err) {
+            sendJSON(res, {
+                message: 'Invalid JSON data.'
+            }, 400);
         }
-
-        const newStudent = {
-            id: data.students.length + 1,
-            name: student.name,
-            course: student.course,
-            year: student.year
-        };
-
-        data.students.push(newStudent);
-
-        saveData(data);
-
-        fs.appendFileSync(
-            studentFile,
-            newStudent.name + '\n'
-        );
-
-        res.writeHead(201, {
-            'Content-Type': 'application/json'
-        });
-
-        res.end(JSON.stringify({
-            message: 'Student registered successfully.',
-            student: newStudent
-        }));
     });
 }
 
 const server = http.createServer((req, res) => {
 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     const url = new URL(req.url, `http://localhost:${PORT}`);
     const route = url.pathname;
 
-    const data = getData();
-
-    const isJSON = req.headers['content-type'] && req.headers['content-type'].includes('application/json');
-
     if (req.method === 'GET' && route === '/') {
-        sendFile(res, 'index.html');
+        sendFile(res, 'index.html', 'text/html');
         return;
     }
 
     if (req.method === 'GET' && route === '/script.js') {
+        sendFile(res, 'script.js', 'application/javascript');
+        return;
+    }
 
-        fs.readFile(
-            path.join(frontendFolder, 'script.js'),
-            (error, data) => {
+    if (req.method === 'GET' && route === '/api/about') {
+        sendJSON(res, getData(collegeFile));
+        return;
+    }
 
-                if (error) {
-                    res.writeHead(404);
-                    res.end('File Not Found');
-                    return;
-                }
+    if (req.method === 'GET' && route === '/api/courses') {
+        sendJSON(res, getData(coursesFile));
+        return;
+    }
 
-                res.writeHead(200, {
-                    'Content-Type': 'text/javascript'
-                });
+    if (req.method === 'GET' && route.startsWith('/api/courses/')) {
+        const courses = getData(coursesFile);
+        const courseName = route.split('/')[3];
 
-                res.end(data);
-            }
-        );
+        const course = courses.find((item) => item.slug === courseName);
+
+        if (course) {
+            sendJSON(res, course);
+        } else {
+            sendJSON(res, {
+                message: 'Course not found'
+            }, 404);
+        }
 
         return;
     }
 
-    if (req.method === 'POST' && route === '/students') {
+    if (req.method === 'GET' && route === '/api/students') {
+        sendJSON(res, getData(studentsFile));
+        return;
+    }
+
+    if (req.method === 'POST' && route === '/api/students') {
         registerStudent(req, res);
         return;
     }
 
-    if (req.method === 'GET' && route === '/about') {
-
-        if (isJSON) {
-            sendJSON(res, data.college);
-        } else {
-            sendFile(res, 'index.html');
-        }
-
+    if (req.method === 'GET' && route === '/api/facilities') {
+        sendJSON(res, getData(facilitiesFile));
         return;
     }
 
-    if (req.method === 'GET' && route === '/courses') {
-
-        if (isJSON) {
-
-            const courseName = url.searchParams.get('name');
-
-            if (courseName) {
-
-                const course = data.courses.find(
-                    course => course.name === courseName
-                );
-
-                if (course) {
-                    sendJSON(res, course);
-                } else {
-                    res.writeHead(404);
-                    res.end(JSON.stringify({
-                        message: 'Course not found.'
-                    }));
-                }
-
-            } else {
-                sendJSON(res, data.courses);
-            }
-
-        } else {
-            sendFile(res, 'index.html');
-        }
-
+    if (req.method === 'GET' && route === '/api/placement') {
+        sendJSON(res, getData(placementFile));
         return;
     }
 
-    if (req.method === 'GET' && route === '/students') {
-
-        if (isJSON) {
-            sendJSON(res, data.students);
-        } else {
-            sendFile(res, 'index.html');
-        }
-
+    if (req.method === 'GET' && route === '/api/contact') {
+        sendJSON(res, getData(contactFile));
         return;
     }
 
-    if (req.method === 'GET' && route === '/register') {
-        sendFile(res, 'index.html');
+    if (req.method === 'GET') {
+        sendFile(res, 'index.html', 'text/html');
         return;
     }
 
-    if (req.method === 'GET' && route === '/facilities') {
-
-        if (isJSON) {
-            sendJSON(res, data.facilities);
-        } else {
-            sendFile(res, 'index.html');
-        }
-
-        return;
-    }
-
-    if (req.method === 'GET' && route === '/placement') {
-
-        if (isJSON) {
-            sendJSON(res, data.placement);
-        } else {
-            sendFile(res, 'index.html');
-        }
-
-        return;
-    }
-
-    if (req.method === 'GET' && route === '/contact') {
-
-        if (isJSON) {
-            sendJSON(res, data.contact);
-        } else {
-            sendFile(res, 'index.html');
-        }
-
-        return;
-    }
-
-    res.writeHead(404, {
-        'Content-Type': 'text/plain'
-    });
-
-    res.end('404 - Page Not Found');
+    sendJSON(res, {
+        message: 'Route not found'
+    }, 404);
 });
 
 server.listen(PORT, () => {

@@ -1,204 +1,183 @@
 console.log("Script loaded");
 
 const mainDiv = document.getElementById("main-div");
-document.addEventListener("click", function (event) {
-    if (event.target.tagName !== "A") {
-        return;
-    }
-    event.preventDefault();
+const route = window.location.pathname;
 
-    const route = event.target.getAttribute("href");
+if (route === "/") {
+    mainDiv.innerHTML = `
+        <h1 class="text-3xl font-bold mb-4">Welcome to ABC College</h1>
+        <p class="text-gray-600">Welcome to ABC College Website.</p>
+    `;
+}
 
-    if (route === "/") {
-        mainDiv.innerHTML = `
-            <h1 class="text-3xl font-bold mb-4">
-                Welcome to ABC College
-            </h1>
-
-            <p class="text-gray-600">
-                Welcome to ABC College Website.
-            </p>
-        `;
-
-        return;
-    }
-
-    if (route === "/register") {
-        mainDiv.innerHTML = `
-            <h2 class="text-3xl font-bold mb-6">
-                Student Registration
-            </h2>
-
-            <form id="register-form" class="max-w-md space-y-4">
-
-                <input id="student-name" type="text" placeholder="Enter Name"class="w-full border p-3 rounded">
-
-                <input id="student-course" type="text" placeholder="Enter Course" class="w-full border p-3 rounded">
-
-                <input id="student-year" type="text" placeholder="Enter Year" class="w-full border p-3 rounded">
-
-                <button type="submit" class="bg-slate-900 text-white px-5 py-3 rounded">
-                    Register
-                </button>
-
-            </form>
-        `;
-
-        document.getElementById("register-form").addEventListener("submit", function (event) {
-
-            event.preventDefault();
-
-            const student = {
-                name: document.getElementById("student-name").value,
-                course: document.getElementById("student-course").value,
-                year: document.getElementById("student-year").value
-            };
-
-            fetch("/students", {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify(student)
-            })
-            .then(response => response.json())
-            .then(data => {
-
-                mainDiv.innerHTML += `
-                    <p class="mt-4 text-green-600">
-                        ${data.message}
-                    </p>
-                `;
-            });
-        });
-
-        return;
-    }
-
-    fetch(route, {
-        headers: {
-            "content-type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        if (route === "/about") {
+if (route === "/about") {
+    fetch("/api/about")
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    ${data.name}
-                </h2>
-
+                <h1 class="text-3xl font-bold mb-4">${data.name}</h1>
                 <p>Established: ${data.established}</p>
                 <p>Location: ${data.location}</p>
             `;
-        }
+        });
+}
 
-        else if (route === "/courses") {
+if (route === "/courses") {
+    fetch("/api/courses")
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    Courses
-                </h2>
+                <h1 class="text-3xl font-bold mb-6">Courses</h1>
 
-                <ul class="space-y-3">
-                    ${data.map(course => `
-                        <li>
-                            <a href="/courses?name=${course.name}"
-                               class="text-blue-600 hover:underline">
-                                ${course.name}
-                            </a>
-
-                            - ${course.duration}
-
-                            <br>
-
-                            ${course.description}
-                        </li>
-                    `).join("")}
-                </ul>
+                ${data.map(course => `
+                    <div class="p-4 mb-4 rounded">
+                        <h2 class="text-xl font-bold">${course.name}</h2>
+                        <p>${course.duration}</p>
+                        <p>${course.description}</p>
+                    </div>
+                `).join("")}
             `;
-        }
+        });
+}
 
-        else if (route.startsWith("/courses?name=")) {
+if (route.startsWith("/courses/")) {
+    const courseName = route.split("/")[2];
+
+    fetch(`/api/courses/${courseName}`)
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    ${data.name}
-                </h2>
-
-                <p>
-                    Duration: ${data.duration}
-                </p>
-
-                <p>
-                    ${data.description}
-                </p>
+                <h1 class="text-3xl font-bold mb-4">${data.name}</h1>
+                <p>Duration: ${data.duration}</p>
+                <p>${data.description}</p>
             `;
-        }
+        });
+}
 
-        else if (route === "/students") {
+if (route === "/students") {
+    fetch("/api/students")
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    Students
-                </h2>
+                <h1 class="text-3xl font-bold mb-6">Students</h1>
 
-                <p>Total Students: ${data.length}</p>
-
-                <ul class="mt-4 space-y-2">
-                    ${data.map(student => `
-                        <li>
-                            ${student.name} -
-                            ${student.course} -
-                            ${student.year}
-                        </li>
-                    `).join("")}
-                </ul>
+                ${data.map(student => `
+                    <div class="p-4 mb-3 rounded">
+                        <h2 class="font-bold">${student.name}</h2>
+                        <p>Course: ${student.course}</p>
+                        <p>Year: ${student.year}</p>
+                    </div>
+                `).join("")}
             `;
-        }
+        });
+}
 
-        else if (route === "/facilities") {
+if (route === "/facilities") {
+    fetch("/api/facilities")
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    Facilities
-                </h2>
+                <h1 class="text-3xl font-bold mb-6">Facilities</h1>
 
-                <ul class="space-y-2">
-                    ${data.map(item => `
-                        <li>${item}</li>
-                    `).join("")}
-                </ul>
+                ${data.map(facility => `
+                    <div class="p-4 mb-3 rounded">
+                        <h2 class="text-xl font-bold">${facility.name}</h2>
+                        <p>${facility.description}</p>
+                    </div>
+                `).join("")}
             `;
-        }
+        });
+}
 
-        else if (route === "/placement") {
+if (route === "/placement") {
+    fetch("/api/placement")
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    Placement
-                </h2>
+                <h1 class="text-3xl font-bold mb-6">Placement</h1>
 
-                <p>${data.message}</p>
-
-                <h3 class="text-xl font-bold mt-4">
-                    Recruiting Companies
-                </h3>
-
-                <ul class="space-y-2 mt-2">
-                    ${data.companies.map(company => `
-                        <li>${company}</li>
-                    `).join("")}
-                </ul>
+                <div>
+                    <p>Placement Rate: ${data.placementRate}</p>
+                    <p>Highest Package: ${data.highestPackage}</p>
+                    <p>Average Package: ${data.averagePackage}</p>
+                    <p>Companies: ${data.companies.join(", ")}</p>
+                </div>
             `;
-        }
+        });
+}
 
-        else if (route === "/contact") {
+if (route === "/contact") {
+    fetch("/api/contact")
+        .then(response => response.json())
+        .then(data => {
             mainDiv.innerHTML = `
-                <h2 class="text-3xl font-bold mb-4">
-                    Contact
-                </h2>
+                <h1 class="text-3xl font-bold mb-6">Contact</h1>
 
-                <p>Phone: ${data.phone}</p>
-                <p>Email: ${data.email}</p>
-                <p>Location: ${data.location}</p>
+                <div>
+                    <p class="mb-2"><b>Phone:</b> ${data.phone}</p>
+                    <p class="mb-2"><b>Email:</b> ${data.email}</p>
+                    <p><b>Location:</b> ${data.location}</p>
+                </div>
             `;
-        }
+        });
+}
+
+if (route === "/register") {
+    mainDiv.innerHTML = `
+        <h1 class="text-3xl font-bold mb-6">Student Registration</h1>
+
+        <form id="registerForm" class="max-w-md space-y-4">
+
+            <input name="name" type="text" placeholder="Name"
+                class="w-full border p-3 rounded">
+
+            <input name="course" type="text" placeholder="Course"
+                class="w-full border p-3 rounded">
+
+            <input name="year" type="text" placeholder="Year"
+                class="w-full border p-3 rounded">
+
+            <button type="submit" class="bg-slate-900 text-white px-5 py-3 rounded">
+                Register
+            </button>
+
+        </form>
+    `;
+
+    document.getElementById("registerForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const name = this.elements.name.value;
+        const course = this.elements.course.value;
+        const year = this.elements.year.value;
+
+        fetch("/api/students", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name,
+                course: course,
+                year: year
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            if (data.student) {
+                mainDiv.innerHTML = `
+                    <h1 class="text-2xl font-bold mb-4">${data.message}</h1>
+                    <p>Name: ${data.student.name}</p>
+                    <p>Course: ${data.student.course}</p>
+                    <p>Year: ${data.student.year}</p>
+                `;
+            } else {
+                mainDiv.innerHTML = `
+                    <h1 class="text-2xl font-bold">${data.message}</h1>
+                `;
+            }
+
+        });
     });
-});
+}
