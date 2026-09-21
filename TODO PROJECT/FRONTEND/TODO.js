@@ -3,11 +3,23 @@ let desc = document.getElementById("desc");
 let btn = document.getElementById("addBtn"); 
 let list = document.getElementById("list");
   
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = [];
 
-function saveTasks() { 
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+function loadTasks() { 
+
+    fetch("/api/tasks") 
+    .then(function (response){
+         return response.json(); 
+    })
+    .then(function (data){
+         tasks = data;
+         console.log(tasks);
+         showTasks(); 
+    });
+
 }
+
 
 function showTasks() {
  
@@ -40,24 +52,35 @@ function showTasks() {
                 text: "You won't be able to recover it!",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#ef4444",
-                cancelButtonColor: "#3b82f6",
+                confirmButtonColor: "#111827",
+                cancelButtonColor: "#111827",
                 confirmButtonText: "Yes, Delete"
             }).then((result) => {
 
                 if (result.isConfirmed) {
 
-                    tasks.splice(index, 1);
-                    saveTasks();
-                    showTasks();
+                    fetch("/api/tasks/" + item.id, {
+                        method: "DELETE"
+                    })
+                    .then(function (response){
+                        return response.json();
+                    })
+                    .then(function (data){
 
-                    Swal.fire({
-                        icon: "success",
-                        title: "Deleted!",
-                        text: "Task deleted successfully.",
-                        timer: 1200,
-                        showConfirmButton: false
+                        console.log(data);
+
+                        loadTasks();
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Deleted!",
+                            text: "Task deleted successfully.",
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+
                     });
+
                 }
 
             });
@@ -77,8 +100,8 @@ task.querySelector(".editBtn").onclick = function () {
         showCancelButton: true,
         confirmButtonText: "Save",
         cancelButtonText: "Cancel",
-        confirmButtonColor: "#2563eb",
-        cancelButtonColor: "#ef4444",
+        confirmButtonColor: "#111827",
+        cancelButtonColor: "#111827",
         focusConfirm: false,
 
         preConfirm: () => {
@@ -101,18 +124,35 @@ task.querySelector(".editBtn").onclick = function () {
 
         if (result.isConfirmed) {
 
-            tasks[index].title = result.value.title;
-            tasks[index].desc = result.value.desc;
+            fetch("/api/tasks/" + item.id, {
+                method: "PUT",
 
-            saveTasks();
-            showTasks();
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-            Swal.fire({
-                icon: "success",
-                title: "Task Updated!",
-                text: "Your task has been updated successfully.",
-                timer: 1500,
-                showConfirmButton: false
+                body: JSON.stringify({
+                    title: result.value.title,
+                    desc: result.value.desc
+                })
+            })
+            .then(function (response){
+                return response.json();
+            })
+            .then(function (data){
+
+                console.log(data);
+
+                loadTasks();
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Task Updated!",
+                    text: "Your task has been updated successfully.",
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
             });
 
         }
@@ -135,29 +175,47 @@ btn.onclick = function () {
     title: "Almost There! 🚀",
     text: "Don't forget to fill in both the Title and Description.",
     confirmButtonText: "I'll do it",
-    confirmButtonColor: "#2563eb"
+    confirmButtonColor: "#111827"
 });
         return;
     }
 
-    tasks.push({
-        title: title.value,
-        desc: desc.value
-    });
-    Swal.fire({
-        icon: "success",
-        title: "Task Added!",
-        text: "Your task has been added successfully.",
-        timer: 1500,
-        showConfirmButton: false
-    });
-    saveTasks();
-    showTasks();
+    fetch("/api/tasks", {
+        method: "POST",
 
-    title.value = "";
-    desc.value = "";
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            title: title.value,
+            desc: desc.value
+        })
+
+    })
+    .then(function (response){
+        return response.json();
+    })
+    .then(function (data){
+
+        console.log(data);
+
+        Swal.fire({
+            icon: "success",
+            title: "Task Added!",
+            text: "Your task has been added successfully.",
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        title.value = "";
+        desc.value = "";
+
+        loadTasks();
+
+    });
 
 };
 
 
-showTasks();
+loadTasks();
