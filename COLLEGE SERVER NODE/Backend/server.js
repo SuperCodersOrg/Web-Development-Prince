@@ -5,7 +5,7 @@ const path = require('path');
 const PORT = 3000;
 
 const dataFolder = path.join(__dirname, '..', 'Data');
-const frontendFolder = path.join(__dirname, '..', 'Frontend');
+const Public = path.join(__dirname, '..', 'public');
 
 const collegeFile = path.join(dataFolder, 'college.json');
 const coursesFile = path.join(dataFolder, 'courses.json');
@@ -32,7 +32,7 @@ function sendJSON(res, data, statusCode = 200) {
 }
 
 function sendFile(res, fileName, contentType) {
-    const filePath = path.join(frontendFolder, fileName);
+    const filePath = path.join(Public, fileName);
 
     fs.readFile(filePath, (err, data) => {
         if (err) {
@@ -57,7 +57,7 @@ function registerStudent(req, res) {
     });
 
     req.on('end', () => {
-        try {
+        if (body) {
             const student = JSON.parse(body);
 
             if (!student.name || !student.course || !student.year) {
@@ -84,7 +84,8 @@ function registerStudent(req, res) {
                 student: newStudent
             }, 201);
 
-        } catch (err) {
+        } 
+        else if (err) {
             sendJSON(res, {
                 message: 'Invalid JSON data.'
             }, 400);
@@ -131,7 +132,7 @@ const server = http.createServer((req, res) => {
         const courses = getData(coursesFile);
         const courseName = route.split('/')[3];
 
-        const course = courses.find((item) => item.slug === courseName);
+        const course = courses.find((item) => item.course === courseName);
 
         if (course) {
             sendJSON(res, course);

@@ -128,14 +128,12 @@ if (route === "/register") {
 
         <form id="registerForm" class="max-w-md space-y-4">
 
-            <input name="name" type="text" placeholder="Name"
-                class="w-full border p-3 rounded">
+            <input name="name"  type="text" placeholder="Name" class="w-full border p-3 rounded" required>
 
-            <input name="course" type="text" placeholder="Course"
-                class="w-full border p-3 rounded">
+            <input name="course" type="text" placeholder="Course" class="w-full border p-3 rounded" required>
 
-            <input name="year" type="text" placeholder="Year"
-                class="w-full border p-3 rounded">
+            <input name="year" type="text" placeholder="Year" class="w-full border p-3 rounded" required>
+
 
             <button type="submit" class="bg-slate-900 text-white px-5 py-3 rounded">
                 Register

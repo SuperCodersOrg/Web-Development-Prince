@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="p-6">
+
+    <div class="flex gap-3">
+
+        <select id="category" class="border p-2 rounded">
+            <option value="">Select Category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Footwear">Footwear</option>
+            <option value="Accessories">Accessories</option>
+        </select>
+
+        <input type="number" id="price" placeholder="Enter price" class="border p-2 rounded">
+
+        <button id="searchBtn"class="bg-blue-500 text-white px-4 py-2 rounded">
+            Search
+        </button>
+
+        <div id="result"></div>
+
+    </div>
+
+    <script>
+        document.getElementById('searchBtn').addEventListener('click', () => {
+
+            const category = document.getElementById('category').value;
+            const price = document.getElementById('price').value;
+            const result = document.getElementById("result");
+
+            const query = new URLSearchParams();
+
+            if (category) {
+                query.set("category", category);
+            }
+
+            if (price) {
+                query.set("price", price);
+            }
+
+            // console.log(query.toString());
+
+            const response = fetch(`http://localhost:3000/category?${query}`).then(response=>response.json()).then(data=>{
+                    data.forEach(product => {
+                        result.innerHTML=`<div>
+                            <p>product : ${product.name}</p>
+                            </div>`
+                    });
+            });
+
+        });
+
+
+        // const route = window.location.pathname;
+
+        // if(route == '/category'){
+        //     fetch('/api/category')
+            
+
+        //     }
+        
+    </script>
+
+</body>
+</html>

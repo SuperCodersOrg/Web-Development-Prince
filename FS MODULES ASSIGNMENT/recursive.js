@@ -5,12 +5,12 @@ const source = process.argv[2];
 const destination = process.argv[3];
 
 if (!source || !destination) {
-    console.log('Please give source and destination directory.');
+    console.log('Give source and destination.');
     process.exit();
 }
 
 if (!fs.existsSync(source)) {
-    console.log('Source directory does not exist.');
+    console.log('Source does not exist.');
     process.exit();
 }
 
@@ -18,33 +18,26 @@ if (!fs.existsSync(destination)) {
     fs.mkdirSync(destination);
 }
 
-function copyDirectory(sourceDir, destinationDir) {
+function copy(source, destination) {
+    const items = fs.readdirSync(source);
+    items.forEach(item => {
 
-    const files = fs.readdirSync(sourceDir);
+        const oldPath = path.join(source, item);
+        const newPath = path.join(destination, item);
 
-    files.forEach(file => {
-
-        const sourcePath = path.join(sourceDir, file);
-        const destinationPath = path.join(destinationDir, file);
-
-        const stats = fs.statSync(sourcePath);
-
-        if (stats.isFile()) {
-
-            fs.copyFileSync(sourcePath, destinationPath);
-            console.log(file, 'copied');
-
-        } else if (stats.isDirectory()) {
-
-            if (!fs.existsSync(destinationPath)) {
-                fs.mkdirSync(destinationPath);
+        if (fs.statSync(oldPath).isFile()) {
+            fs.copyFileSync(oldPath, newPath);
+            console.log(item, 'copied');
+        } 
+        else {
+            if (!fs.existsSync(newPath)) {
+                fs.mkdirSync(newPath);
             }
 
-            copyDirectory(sourcePath, destinationPath);
+            copy(oldPath, newPath);
         }
     });
 }
 
-copyDirectory(source, destination);
-
-console.log('Recursive copying completed.');
+copy(source, destination);
+console.log('Copy completed.');
