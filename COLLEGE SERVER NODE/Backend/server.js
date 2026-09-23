@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3000;
+const PORT = 3900;
 
 const dataFolder = path.join(__dirname, '..', 'Data');
 const Public = path.join(__dirname, '..', 'public');
@@ -94,7 +94,6 @@ function registerStudent(req, res) {
 }
 
 const server = http.createServer((req, res) => {
-
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
