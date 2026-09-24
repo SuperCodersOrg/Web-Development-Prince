@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%- include("header") %>
+
+<div class="max-w-4xl w-full mx-auto p-6 flex-1">
+
+    <div class="bg-[#82b0fa] text-white text-center p-12 rounded-xl">
+
+        <h1 class="text-4xl font-bold mb-4">
+            Welcome to Student Portal
+        </h1>
+
+        <p class="text-white text-lg mb-8">
+            Manage students, view marks and keep track of student performance.
+        </p>
+
+        <a href="/students"
+            class="inline-block bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-200">
+            View Students
+        </a>
+
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-3">
+                Students
+            </h2>
+
+            <p class="text-gray-600">
+                View all students and their marks and grades.
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-3">
+                Add Student
+            </h2>
+
+            <p class="text-gray-600">
+                Add a new student to the student portal.
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-3">
+                Performance
+            </h2>
+
+            <p class="text-gray-600">
+                Easily check student marks and their performance.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<%- include("footer") %>
+
+</body>
+
+</html>

@@ -1,14 +1,15 @@
 const express = require("express");
+const path = require("path");
 
 const app = express();
 
-const port = 4000;
-const Router=require()
+app.set("view engine", "ejs");
+app.set("views", path.resolve("./views"));
 
-app.get("/", (req, res) => {
-res.send("Hello World");
-});
+const routes = require("./Route/rout");
 
-app.listen(port, () => {
-console.log(`Server running on http://localhost:${port}`);
+app.use("/", routes);
+
+app.listen(3000, () => {
+    console.log("Server running at http://localhost:3000");
 });

@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>About</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <%- include("header") %>
+
+    <div class="max-w-4xl w-full mx-auto p-6 flex-1">
+
+        <div class="bg-white p-8 rounded-lg shadow">
+
+            <h1 class="text-3xl font-bold mb-4">
+                About Student Portal
+            </h1>
+
+            <p class="text-gray-600 mb-4">
+                Student Portal is a simple web application for managing
+                student information and checking their academic performance.
+            </p>
+
+            <p class="text-gray-600">
+                This project is built using Node.js, Express.js and EJS.
+                It demonstrates routing, forms and server-side rendering.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-4 mt-8">
+
+                <div class="bg-gray-100 p-5 rounded-lg">
+                    <h2 class="font-bold mb-2">
+                        Student Management
+                    </h2>
+
+                    <p class="text-gray-600 text-sm">
+                        Add and view student information easily.
+                    </p>
+                </div>
+
+                <div class="bg-gray-100 p-5 rounded-lg">
+                    <h2 class="font-bold mb-2">
+                        Marks & Grades
+                    </h2>
+
+                    <p class="text-gray-600 text-sm">
+                        View student marks and grades.
+                    </p>
+                </div>
+
+                <div class="bg-gray-100 p-5 rounded-lg">
+                    <h2 class="font-bold mb-2">
+                        EJS Templates
+                    </h2>
+
+                    <p class="text-gray-600 text-sm">
+                        Create dynamic pages using EJS.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include("footer") %>
+
+</body>
+
+</html>
+
