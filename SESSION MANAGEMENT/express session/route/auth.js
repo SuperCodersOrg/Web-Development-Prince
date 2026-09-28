@@ -11,7 +11,7 @@ function saveData(file, data) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
     console.log("DATA SAVED SUCCESSFULLY");
 }
-
+ 
 let users = [];
 if (fs.existsSync(datafile)) {
     users = JSON.parse(fs.readFileSync(datafile, "utf8"));
