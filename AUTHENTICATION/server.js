@@ -6,7 +6,13 @@ const Path=require("path");
 const cookieParser=require("cookie-parser");
 
 
-const { router,getUser } = require("./auth/auth");
+const {
+    router,
+    getUser,
+    getRefreshUser,
+    setAccessToken
+} = require("./auth/auth");
+
 
 
 
@@ -22,15 +28,38 @@ app.set("views",Path.join(__dirname,"views"));
 app.use("/", router);
 
 function isAuthenticated(req,res,next){
-    const token = req.cookies.token;
-    const user=getUser(token);
-
-    if(!user){
-        return res.redirect("/login");
-
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
+    const user=getUser(accessToken);
+    if (user) {
+        req.user = user;
+        return next();
     }
-    req.user=user;
+
+    const refreshUser = getRefreshUser(refreshToken);
+
+    if (!refreshUser) {
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+        return res.redirect("/login");
+    }
+
+    const newAccessToken = setAccessToken(
+        refreshUser.id,
+        refreshUser
+    );
+
+    res.cookie("accessToken", newAccessToken, {
+
+        httpOnly: true,
+        maxAge: 60 * 1000,
+        sameSite: "lax"
+
+    });
+
+    req.user = refreshUser;
     next();
+
 }
 
 app.get("/dashboard", isAuthenticated, (req, res) => {
@@ -43,8 +72,8 @@ app.get("/dashboard", isAuthenticated, (req, res) => {
 
 app.get("/logout", (req, res) => {
 
-    res.clearCookie("token");
-
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
     res.redirect("/login");
 
 });

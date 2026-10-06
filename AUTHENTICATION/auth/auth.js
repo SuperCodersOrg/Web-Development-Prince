@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const SecretKey = "Yogesh13209";
+const RefreshSecretKey = "RefreshYogesh13209";
 const router = express.Router();
 const fs=require("fs");
 const path = require("path");
@@ -17,17 +18,18 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASSWORD
     }
 });
-function getData(file) {
+function getData(file){
     const data = fs.readFileSync(file, 'utf8');
     return JSON.parse(data);
 }
 
-function saveData(file, data) {
+function saveData(file, data){
     fs.writeFileSync(file,JSON.stringify(data),'utf8');
     console.log("DATA SAVED SUCCESSFULLY");
 }
 
-function setUser(id, user) {
+function setAccessToken(id, user) {
+
     return jwt.sign(
         {
             id: id,
@@ -36,22 +38,54 @@ function setUser(id, user) {
         },
         SecretKey,
         {
-            expiresIn: "1h"
+            expiresIn: "15m"
         }
     );
 }
 
-function getUser(token) {
-    if (!token) {
+function setRefreshToken(id, user) {
+
+    return jwt.sign(
+        {
+            id: id,
+            username: user.username,
+            email: user.email
+        },
+        RefreshSecretKey,
+        {
+            expiresIn: "5d"
+        }
+    );
+}
+
+function getUser(token){
+    if (!token){
         return null;
     }
 
     try {
         return jwt.verify(token, SecretKey);
-    } catch (error) {
+    } catch (error){
         return null;
     }
 }
+
+function getRefreshUser(token) {
+
+    if (!token) {
+        return null;
+    }
+
+    try {
+
+        return jwt.verify(token, RefreshSecretKey);
+
+    } catch (error) {
+
+        return null;
+    }
+}
+
 
 router.get("/signup", (req, res) => {
     res.render("signup");
@@ -76,15 +110,32 @@ router.post("/signup", (req, res) => {
 
     users.push(user);
     saveData(userFile, users);
+ 
+    const accessToken = setAccessToken(user.id, user);
 
-    res.redirect("/dashboard");
+    const refreshToken = setRefreshToken(user.id, user);
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        maxAge: 60 * 1000,
+        sameSite: "lax"
+
+    });
+    res.cookie("refreshToken", refreshToken, {
+       httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: "lax"
+
+    });
+
+   res.redirect("/dashboard");
 });
 
-router.get("/", (req, res) => {
+router.get("/", (req, res) =>{
     res.render("signup");
 });
 
-router.get("/login", (req, res) => {
+router.get("/login", (req, res) =>{
     res.render("login");
 });
 
@@ -96,23 +147,36 @@ router.post("/login", (req, res) => {
         user => user.email === email && user.password === password
     );
 
-    if (!user) {
+    if (!user){
         return res.send("Invalid email or password");
     }
 
-    const token = setUser(user.id, user);
+  const accessToken = setAccessToken(user.id, user);
+  const refreshToken = setRefreshToken(user.id, user);
 
-    res.cookie("token", token, {
-        httpOnly: true
+  res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        maxAge: 60 * 1000,
+        sameSite: "lax"
+
     });
 
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        sameSite: "lax"
+
+    });
     res.redirect("/dashboard");
+
 });
+
 router.get("/forgot-password",(req,res) =>{
 
      res.render("forgot-password"); 
     }
 );
+
 router.post("/forgot-password",(req,res)=>{
     const {email} = req.body;
     let users=getData(userFile);
@@ -144,8 +208,8 @@ ${resetLink}
 This link will expire in 3 minutes.`
     };
 
-    transporter.sendMail(mailOptions, (error,info) => {
-        if (error) {
+    transporter.sendMail(mailOptions, (error,info) =>{
+        if (error){
             console.log(error);
             return res.send("Failed to send reset email");
         }
@@ -154,16 +218,16 @@ This link will expire in 3 minutes.`
         res.send("Password reset link has been sent to your email");
     });
 });
-router.get("/reset-password/:token", (req, res) => {
+router.get("/reset-password/:token", (req, res) =>{
     const { token } = req.params;
 
     const user = getUser(token);
 
-    if (!user) {
+    if (!user){
         return res.send("Invalid or expired reset link");
     }
 
-    res.render("reset-password", {
+    res.render("reset-password",{
         token
     });
 });
@@ -174,7 +238,7 @@ router.post("/reset-password/:token", (req, res) => {
 
     const decoded = getUser(token);
 
-    if (!decoded) {
+    if (!decoded){
         return res.send("Invalid or expired reset link");
     }
 
@@ -183,7 +247,7 @@ router.post("/reset-password/:token", (req, res) => {
     user => user.id === decoded.id
    );
 
-    if (!user) {
+    if (!user){
         return res.send("User not found");
     }
 
@@ -195,6 +259,8 @@ router.post("/reset-password/:token", (req, res) => {
 
 module.exports = {
     router,
-    setUser,
+    setAccessToken,
+    setRefreshToken,
     getUser,
+    getRefreshUser
 };
