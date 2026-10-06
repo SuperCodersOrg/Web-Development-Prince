@@ -77,7 +77,7 @@ router.post("/signup", (req, res) => {
     users.push(user);
     saveData(userFile, users);
 
-    res.redirect("/login");
+    res.redirect("/dashboard");
 });
 
 router.get("/", (req, res) => {
@@ -132,7 +132,7 @@ router.post("/forgot-password",(req,res)=>{
     const resetLink = `http://localhost:8000/reset-password/${resetToken}`;
 
     const mailOptions = {
-        from: "123@gmail.com",
+        from: process.env.EMAIL_USER,
         to: user.email,
         subject: "Password Reset",
         text: `Hello ${user.username},
