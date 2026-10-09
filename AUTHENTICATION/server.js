@@ -1,10 +1,13 @@
 require("dotenv").config();
-const express =require("express");
+
+const express = require("express");
 const app = express();
 const Port = 8000;
-const Path=require("path");
-const cookieParser=require("cookie-parser");
+const Path = require("path");
+const cookieParser = require("cookie-parser");
 
+const connectDB = require("./config/db");
+connectDB();
 
 const {
     router,
@@ -13,24 +16,23 @@ const {
     setAccessToken
 } = require("./auth/auth");
 
-
-
-
 app.use(express.json());
-app.use(express.static("Pulic"));
+app.use(express.static("Public"));
 app.use(cookieParser());
-app.use(express.urlencoded({extended:true}));
-app.set("view engine","ejs");
-app.set("views",Path.join(__dirname,"views"));
+app.use(express.urlencoded({ extended: true }));
 
-//const authRouter = require("./auth/auth");
+app.set("view engine", "ejs");
+app.set("views", Path.join(__dirname, "views"));
 
 app.use("/", router);
 
-function isAuthenticated(req,res,next){
+function isAuthenticated(req, res, next) {
+
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
-    const user=getUser(accessToken);
+
+    const user = getUser(accessToken);
+
     if (user) {
         req.user = user;
         return next();
@@ -41,6 +43,7 @@ function isAuthenticated(req,res,next){
     if (!refreshUser) {
         res.clearCookie("accessToken");
         res.clearCookie("refreshToken");
+
         return res.redirect("/login");
     }
 
@@ -50,16 +53,14 @@ function isAuthenticated(req,res,next){
     );
 
     res.cookie("accessToken", newAccessToken, {
-
         httpOnly: true,
-        maxAge: 60 * 1000,
+        maxAge: 15 * 60 * 1000,
         sameSite: "lax"
-
     });
 
     req.user = refreshUser;
-    next();
 
+    next();
 }
 
 app.get("/dashboard", isAuthenticated, (req, res) => {
@@ -74,10 +75,11 @@ app.get("/logout", (req, res) => {
 
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
+
     res.redirect("/login");
 
 });
 
-app.listen(8000, () => {
+app.listen(Port, () => {
     console.log(`Server running on http://localhost:${Port}`);
-})
+});
