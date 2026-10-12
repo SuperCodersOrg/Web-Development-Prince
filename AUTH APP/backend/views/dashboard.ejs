@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Auth</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <main class="dashboard-page">
+        <header class="navbar">
+            <a href="/dashboard" class="brand">AUTH<span>.</span></a>
+
+            <form action="/logout" method="POST">
+                <button type="submit" class="btn btn-outline">Sign out</button>
+            </form>
+        </header>
+
+        <section class="dashboard-content">
+            <p class="eyebrow">YOUR ACCOUNT</p>
+            <h1>Welcome back, <%= user.username %>.</h1>
+            <p class="subtitle">
+                You're signed in. Here's your account information.
+            </p>
+
+            <section class="profile-card">
+                <div class="profile-header">
+                    <!-- <div class="avatar">
+                   
+                    </div> -->
+
+                    <div>
+                        <h2><%= user.name %></h2>
+                        <p><%= user.email %></p>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="detail-row">
+                    <span>name</span>
+                    <strong><%= user.name %></strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Email address</span>
+                    <strong><%= user.email %></strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Account status</span>
+                    <strong class="status">
+                        <span class="status-dot"></span>
+                        Active
+                    </strong>
+                </div>
+            </section>
+
+            <p class="security-note">
+                Your account is protected. Keep your login credentials private.
+            </p>
+        </section>
+
+        <footer class="dashboard-footer">
+            © <%= new Date().getFullYear() %> Auth
+        </footer>
+    </main>
+</body>
+</html>

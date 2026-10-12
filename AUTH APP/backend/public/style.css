@@ -1,0 +1,378 @@
+
+:root {
+    --white: #ffffff;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --red-700: #b91c1c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+    background: var(--white);
+    color: var(--gray-900);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--gray-900);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Shared brand */
+
+.brand {
+    display: inline-block;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--gray-900);
+}
+
+.brand span {
+    color: var(--gray-400);
+}
+
+/* Login and signup */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 390px;
+}
+
+.auth-card > .brand {
+    margin-bottom: 38px;
+}
+
+.heading {
+    margin-bottom: 28px;
+}
+
+.heading h1 {
+    font-size: 28px;
+    line-height: 1.3;
+    letter-spacing: -1px;
+    font-weight: 650;
+    margin-bottom: 8px;
+}
+
+.heading p,
+.subtitle {
+    color: var(--gray-500);
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+.form-group input {
+    display: block;
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--gray-900);
+    font: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.form-group input::placeholder {
+    color: var(--gray-400);
+}
+
+.form-group input:focus {
+    border-color: var(--gray-900);
+}
+
+.form-group small {
+    display: block;
+    color: var(--gray-500);
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--gray-900);
+    border-radius: 6px;
+    background: var(--gray-900);
+    color: var(--white);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn:hover {
+    background: var(--gray-700);
+}
+
+.auth-footer {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+}
+
+.auth-footer a {
+    font-weight: 600;
+    margin-left: 3px;
+}
+
+.error {
+    margin-bottom: 20px;
+    padding: 11px 12px;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    background: #fef2f2;
+    color: var(--red-700);
+    font-size: 13px;
+}
+
+.copyright {
+    margin-top: 45px;
+    color: var(--gray-400);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Dashboard */
+
+.dashboard-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    min-height: 72px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.navbar form {
+    margin: 0;
+}
+
+.btn-outline {
+    width: auto;
+    min-height: 36px;
+    padding: 7px 13px;
+    background: var(--white);
+    color: var(--gray-900);
+    border-color: var(--gray-200);
+}
+
+.btn-outline:hover {
+    background: var(--gray-50);
+}
+
+.dashboard-content {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 75px 24px;
+    flex: 1;
+}
+
+.eyebrow {
+    margin-bottom: 12px;
+    color: var(--gray-500);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.dashboard-content > h1 {
+    font-size: 32px;
+    line-height: 1.3;
+    letter-spacing: -1.2px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.subtitle {
+    margin-top: 10px;
+}
+
+.profile-card {
+    margin-top: 35px;
+    padding: 25px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--gray-100);
+    color: var(--gray-900);
+    font-size: 19px;
+    font-weight: 650;
+}
+
+.profile-header h2 {
+    font-size: 16px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.profile-header p {
+    color: var(--gray-500);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.divider {
+    height: 1px;
+    margin: 24px 0 8px;
+    background: var(--gray-200);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row > span {
+    color: var(--gray-500);
+    flex-shrink: 0;
+}
+
+.detail-row strong {
+    font-weight: 550;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gray-900);
+}
+
+.security-note {
+    margin-top: 18px;
+    color: var(--gray-500);
+    font-size: 12px;
+}
+
+.dashboard-footer {
+    padding: 22px 7%;
+    border-top: 1px solid var(--gray-200);
+    color: var(--gray-500);
+    font-size: 12px;
+}
+
+@media (max-width: 480px) {
+    .auth-page {
+        justify-content: flex-start;
+        padding-top: 65px;
+    }
+
+    .auth-card > .brand {
+        margin-bottom: 32px;
+    }
+
+    .heading h1 {
+        font-size: 25px;
+    }
+
+    .navbar {
+        min-height: 64px;
+        padding: 0 20px;
+    }
+
+    .dashboard-content {
+        padding: 50px 20px;
+    }
+
+    .dashboard-content > h1 {
+        font-size: 27px;
+    }
+
+    .profile-card {
+        padding: 18px;
+    }
+
+    .detail-row {
+        gap: 12px;
+        font-size: 13px;
+    }
+
+    .detail-row > span {
+        white-space: normal;
+    }
+}
