@@ -1,0 +1,109 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is Node.js?",
+      "answer": "Node.js is a JavaScript runtime environment that allows JavaScript to run outside the browser.",
+      "subject": "Node.js",
+      "difficulty": "Easy"
+    },
+    {
+      "id": 2,
+      "question": "What is Express.js?",
+      "answer": "Express.js is a lightweight web framework for Node.js used to build web servers and APIs.",
+      "subject": "Express.js",
+      "difficulty": "Easy"
+    },
+    {
+      "id": 3,
+      "question": "What is middleware in Express.js?",
+      "answer": "Middleware is a function that can access the request, response, and next function during the request-response cycle.",
+      "subject": "Express.js",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 4,
+      "question": "What is Multer?",
+      "answer": "Multer is a Node.js middleware used to handle multipart/form-data, mainly for file uploads.",
+      "subject": "Node.js",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 5,
+      "question": "What is Nodemailer?",
+      "answer": "Nodemailer is a Node.js module used to send emails through SMTP or other supported transports.",
+      "subject": "Node.js",
+      "difficulty": "Easy"
+    },
+    {
+      "id": 6,
+      "question": "What is authentication?",
+      "answer": "Authentication is the process of verifying the identity of a user or system.",
+      "subject": "Authentication",
+      "difficulty": "Easy"
+    },
+    {
+      "id": 7,
+      "question": "What is authorization?",
+      "answer": "Authorization determines whether an authenticated user has permission to access a resource or perform an action.",
+      "subject": "Authentication",
+      "difficulty": "Easy"
+    },
+    {
+      "id": 8,
+      "question": "What is a JWT?",
+      "answer": "A JSON Web Token is a compact token format used to represent claims between parties. Signed JWTs allow the receiver to verify integrity and authenticity.",
+      "subject": "Authentication",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 9,
+      "question": "What are cookies?",
+      "answer": "Cookies are small pieces of data stored by a browser and sent with matching HTTP requests.",
+      "subject": "Authentication",
+      "difficulty": "Easy"
+    },
+    {
+      "id": 10,
+      "question": "What is the difference between authentication and authorization?",
+      "answer": "Authentication verifies who the user is, while authorization checks what the user is allowed to do.",
+      "subject": "Authentication",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 11,
+      "question": "What is the difference between require and module.exports?",
+      "answer": "require() imports a module, while module.exports defines the value that a CommonJS module exposes to other modules.",
+      "subject": "Node.js",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 12,
+      "question": "What is the difference between fs.readFile() and fs.readFileSync()?",
+      "answer": "fs.readFile() reads a file asynchronously, while fs.readFileSync() blocks execution until the file operation completes.",
+      "subject": "Node.js",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 13,
+      "question": "What is the event loop in Node.js?",
+      "answer": "The event loop allows Node.js to coordinate asynchronous operations and process callbacks without blocking the main JavaScript thread during supported asynchronous I/O.",
+      "subject": "Node.js",
+      "difficulty": "Hard"
+    },
+    {
+      "id": 14,
+      "question": "Why should passwords be hashed?",
+      "answer": "Password hashing stores a one-way representation of a password so the original password does not need to be stored. A suitable password-hashing algorithm such as Argon2id or bcrypt should be used.",
+      "subject": "Authentication",
+      "difficulty": "Medium"
+    },
+    {
+      "id": 15,
+      "question": "What is the difference between an access token and a refresh token?",
+      "answer": "An access token is used to access protected resources, while a refresh token is used to obtain a new access token after validating the refresh token.",
+      "subject": "Authentication",
+      "difficulty": "Hard"
+    }
+  ]
+}
