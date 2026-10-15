@@ -77,16 +77,17 @@ app.get('/signup', (req, res) => {
 
 app.post('/signup', (req, res) => {
     const  {name, email, password } = req.body;
+    console.log(req.body)
     const users = getData(userFile);
 
-    const user = users.find(user => user.email === email);
+    const user = users.find(user => user.name == name && user.email === email);
 
     if (user) {
         return res.status(409).send('User already exists');
     }
 
     bcrypt.hash(password, 10).then(hashedPassword => {
-        const newuser = {
+        const newuser ={
             id: Date.now(),
             name,
             email,
@@ -140,12 +141,12 @@ app.post('/login', (req, res) => {
 
 app.get('/dashboard', isAuthenticated, (req, res) => {
     const users = getData(userFile);
-    console.log(users);
-    res.status(200).render(("dashboard"),{
-        user: users.id,
-        email:users.email
-        
-    });
+       const user = users.find(user => user.id === req.session.userId);
+    console.log(user);
+  res.render("dashboard", {
+    user: user.usename,
+    email: user.email
+});
 });
 
 app.post('/logout', (req, res) => {
