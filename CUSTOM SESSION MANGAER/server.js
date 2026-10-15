@@ -76,7 +76,7 @@ app.get('/signup', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-    const  {name, email, password } = req.body;
+    const  {username, email, password } = req.body;
     console.log(req.body)
     const users = getData(userFile);
 
@@ -89,12 +89,13 @@ app.post('/signup', (req, res) => {
     bcrypt.hash(password, 10).then(hashedPassword => {
         const newuser ={
             id: Date.now(),
-            name,
+            username,
             email,
             password: hashedPassword
         };
 
         users.push(newuser);
+        console.log(newuser);
         saveData(userFile, users);
 
         res.redirect("/dashboard");
@@ -144,7 +145,7 @@ app.get('/dashboard', isAuthenticated, (req, res) => {
        const user = users.find(user => user.id === req.session.userId);
     console.log(user);
   res.render("dashboard", {
-    user: user.usename,
+    user: user.username,
     email: user.email
 });
 });
