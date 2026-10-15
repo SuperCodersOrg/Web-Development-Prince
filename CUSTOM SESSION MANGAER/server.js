@@ -23,6 +23,44 @@ function saveData(file, data) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 }
 
+function getCookie(req) {
+    const cookies = (req.headers.cookie || '').split(';');
+    const cookie = cookies.find(cookie =>
+        cookie.trim().startsWith('sessionid=')
+    );
+    if (cookie) {
+        return cookie.trim().split('=')[1];
+    }
+    return null;
+}
+
+
+function isAuthenticated(req, res, next) {
+    const sessionId = getCookie(req);
+
+    if (!sessionId) {
+        return res.redirect('/login');
+    }
+
+    const sessions = getData(sessionFile);
+    const session = sessions.find(
+        session => session.sessionId === sessionId
+    );
+   if (!session || Date.now() >= session.expiresAt) {
+        saveData(
+            sessionFile,
+            sessions.filter(session => session.sessionId !== sessionId)
+        );
+        res.setHeader(
+            'Set-Cookie',
+            'sessionid=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax'
+        );
+        return res.redirect('/login');
+    }
+    req.session = session;
+    next();
+}
+
 
 
 app.get('/', (req, res) => {
@@ -48,14 +86,14 @@ app.post('/signup', (req, res) => {
     }
 
     bcrypt.hash(password, 10).then(hashedPassword => {
-        const newUser = {
+        const newuser = {
             id: Date.now(),
             name,
             email,
             password: hashedPassword
         };
 
-        users.push(newUser);
+        users.push(newuser);
         saveData(userFile, users);
 
         res.redirect("/dashboard");
@@ -63,10 +101,10 @@ app.post('/signup', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
     const users = getData(userFile);
-
-    const user = users.find(user => user.email === email);
+//console.log(users)
+    const user = users.find(user => user.name == name && user.email === email);
 
     if (!user) {
         return res.status(401).send('Invalid email or password');
@@ -102,15 +140,12 @@ app.post('/login', (req, res) => {
 
 app.get('/dashboard', isAuthenticated, (req, res) => {
     const users = getData(userFile);
-
-    const user = users.find(
-        user => user.id === req.session.userId
-    );
-
-    if (!user) {
-        return res.redirect('/login');
-    }
-  res.render('dashboard', { user: user });
+    console.log(users);
+    res.status(200).render(("dashboard"),{
+        user: users.id,
+        email:users.email
+        
+    });
 });
 
 app.post('/logout', (req, res) => {

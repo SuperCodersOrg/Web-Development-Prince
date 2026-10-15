@@ -18,7 +18,7 @@
 
         <section class="dashboard-content">
             <p class="eyebrow">YOUR ACCOUNT</p>
-            <h1>Welcome back, <%= user.name %>.</h1>
+            <h1>Welcome back, <% user%>.</h1>
             <p class="subtitle">
                 You're signed in. Here's your account information.
             </p>
@@ -30,8 +30,8 @@
                     </div> -->
 
                     <div>
-                        <h2><%= user.name %></h2>
-                        <p><%= user.email %></p>
+                        <h2><%= user %></h2>
+                        <p><%= email %></p>
                     </div>
                 </div>
 
@@ -39,12 +39,12 @@
 
                 <div class="detail-row">
                     <span>name</span>
-                    <strong><%= user.name %></strong>
+                    <strong><%= user%></strong>
                 </div>
 
                 <div class="detail-row">
                     <span>Email address</span>
-                    <strong><%= user.email %></strong>
+                    <strong><%= email %></strong>
                 </div>
 
                 <div class="detail-row">
