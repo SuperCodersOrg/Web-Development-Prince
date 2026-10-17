@@ -41,70 +41,38 @@ app.get("/signup", (req, res) => {
     res.render("signup", { error: null });
 });
 
-
 app.post("/signup", async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        // Validate fields before using trim() or length
-        if (
-            typeof username !== "string" ||
-            typeof email !== "string" ||
-            typeof password !== "string"
-        ) {
-            return res.status(400).render("signup", {
-                error: "Please fill in all fields."
+        if (!username || !email || !password) {
+            return res.render("signup", {
+                error: "All fields are required"
             });
         }
 
-        const normalizedUsername = username.trim();
-        const normalizedEmail = email.trim().toLowerCase();
+        const user = await User.findOne({ email: email.trim().toLowerCase() });
 
-        if (
-            normalizedUsername.length < 3 ||
-            normalizedUsername.length > 30 ||
-            !normalizedEmail ||
-            password.length < 6 ||
-            password.length > 72
-        ) {
-            return res.status(400).render("signup", {
-                error: "Username must be 3–30 characters and password must be 6–72 characters."
-            });
-        }
-
-        const existingUser = await User.findOne({
-            email: normalizedEmail
-        });
-
-        if (existingUser) {
-            return res.status(400).render("signup", {
-                error: "An account with this email already exists."
+        if (user) {
+            return res.render("signup", {
+                error: "User already exists"
             });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({
-          name: normalizedUsername,
-            email: normalizedEmail,
+         User.create({
+            name: username.trim(),
+            email: email.trim().toLowerCase(),
             password: hashedPassword
         });
 
-        console.log("User created successfully:", newUser._id);
-
-        return res.redirect("/login");
+        res.redirect("/login");
 
     } catch (error) {
-        console.error("Signup error:", error);
-
-        if (error.code === 11000) {
-            return res.status(400).render("signup", {
-                error: "An account with this email already exists."
-            });
-        }
-
-        return res.status(500).render("signup", {
-            error: "Something went wrong. Please try again."
+        console.log(error);
+        res.render("signup", {
+            error: "Something went wrong"
         });
     }
 });
@@ -116,44 +84,38 @@ app.get("/login", (req, res) => {
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
+        if (!email || !password) {
+            return res.render("login", {
+                error: "All fields are required"
+            });
+        }
+        const user = await User.findOne({ email: email.trim().toLowerCase()});
+       if (!user){  return res.render("login", {
+                error: "Invalid email or password"
+            });
+        }
+        const verify = await bcrypt.compare(password, user.password);
 
-        if (!email || !password ||
-            password.length > 72) {
-            return res.status(400).render("login", {
-                error: "Please enter a valid email and password."
+        if (!verify) {
+            return res.render("login", {
+                error: "Invalid email or password"
             });
         }
 
-        const user = await User.findOne({
-            email: email.trim().toLowerCase()
-        });
-
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(400).render("login", {
-                error: "Invalid email or password."
-            });
-        }
-
-        const token = jwt.sign(
-            {
-                userId: user._id.toString()
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: "5h" }
+        const token = jwt.sign( { userId: user._id }, process.env.JWT_SECRET,{ expiresIn: "5h" }
         );
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
             maxAge: 5 * 60 * 60 * 1000
         });
 
         res.redirect("/dashboard");
     } catch (error) {
-        console.error("Login error:", error.message);
-        res.status(500).render("login", {
-            error: "Something went wrong. Please try again."
+        console.log(error);
+
+        res.render("login", {
+            error: "Something went wrong"
         });
     }
 });
@@ -161,17 +123,18 @@ app.post("/login", async (req, res) => {
 app.get("/dashboard", isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId)
-            .select("username email")
-            .lean();
+        console.log(user)
 
         if (!user) {
             res.clearCookie("token");
             return res.redirect("/login");
         }
 
-        res.render("dashboard", { user });
-    } catch (error) {
-        console.error("Dashboard error:", error.message);
+        res.render("dashboard",
+             {  user: user.name,
+             email: user.email 
+            });
+        } catch (error) {
         res.status(500).send("Something went wrong.");
     }
 });
@@ -179,28 +142,21 @@ app.get("/dashboard", isAuthenticated, async (req, res) => {
 app.post("/logout", (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax"
     });
 
     res.redirect("/login");
 });
 
-const startServer = async () => {
+async function startServer() {
     try {
-        if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
-            throw new Error("MONGO_URI and JWT_SECRET must be set in .env");
-        }
-
         await connectDB();
 
         app.listen(port, () => {
             console.log(`Server running at http://localhost:${port}`);
         });
-    } catch (error) {
-        console.error("Server startup error:", error.message);
-        process.exit(1);
-    }
-};
 
+    } catch (error) {
+        console.log("Error starting server:", error.message);
+    }
+}
 startServer();

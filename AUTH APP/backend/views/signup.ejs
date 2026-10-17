@@ -9,16 +9,12 @@
 <body>
     <main class="auth-page">
         <section class="auth-card">
-            <a href="/" class="brand">AUTH<span>.</span></a>
+            <a href="/" class="brand">Signup<span></span></a>
 
             <div class="heading">
                 <h1>Create an account</h1>
                 <p>Enter your details to get started.</p>
             </div>
-
-            <% if (error) { %>
-                <div class="error"><%= error %></div>
-            <% } %>
 
             <form action="/signup" method="POST">
                 <div class="form-group">
@@ -71,7 +67,7 @@
             </p>
         </section>
 
-        <p class="copyright">© <%= new Date().getFullYear() %> Auth. All rights reserved.</p>
+      
     </main>
 </body>
 </html>

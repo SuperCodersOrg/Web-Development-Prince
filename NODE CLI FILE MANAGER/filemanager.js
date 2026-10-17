@@ -8,7 +8,7 @@ const content = process.argv.slice(4).join(' ');
 
 function showHelp() {
     console.log(`
-NodeCLI File Manager
+__NodeCLI File Manager__
 
 Commands:
   create <filename> <content>  Create a new file
@@ -53,7 +53,6 @@ async function deleteFile() {
         process.exitCode = 1;
         return;
     }
-
     await fs.unlink(path.resolve(fileName));
     console.log('File deleted successfully:', fileName);
 }
