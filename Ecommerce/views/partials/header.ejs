@@ -1,0 +1,19 @@
+<header class="bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+    <a href="/dashboard" class="text-xl font-bold">CARTFORGE</a>
+    <nav class="flex flex-wrap items-center gap-4 text-sm">
+      <a href="/dashboard" class="hover:underline">Dashboard</a>
+      <a href="/products" class="hover:underline">Products</a>
+      <a href="/cart" class="hover:underline">Cart</a>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/profile" class="flex items-center gap-2 hover:underline">
+          <span class="bg-white text-gray-900 rounded-full w-9 h-9 flex items-center justify-center font-bold"><%= user.username.charAt(0).toUpperCase() %></span>
+          <span>Profile</span>
+        </a>
+      <% } else { %>
+        <a href="/login" class="hover:underline">Login</a>
+        <a href="/signup" class="hover:underline">Signup</a>
+      <% } %>
+    </nav>
+  </div>
+</header>
