@@ -1,50 +1,23 @@
-
-const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const User = require('../Models/User');
+const { mailer, createLoginCookie } = require('../services/authService');
 
-const router = express.Router();
+const home = (req, res) => res.redirect('/dashboard');
 
-const mailer = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
-
-function createLoginCookie(res, user) {
-    const token = jwt.sign(
-        { id: user.id, version: user.tokenVersion },
-        process.env.JWT_SECRET,
-        { expiresIn: '1d' }
-    );
-
-    res.cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 86400000
-    });
-}
-
-router.get('/', (req, res) => res.redirect('/dashboard'));
-
-router.get('/signup', (req, res) => {
+const showSignup = (req, res) => {
     res.render('signup', { message: '' });
-});
+};
 
-router.get('/login', (req, res) => {
+const showLogin = (req, res) => {
     res.render('login', { message: '' });
-});
+};
 
-router.get('/forgot-password', (req, res) => {
+const showForgotPassword = (req, res) => {
     res.render('forgot-password', { message: '' });
-});
+};
 
-router.post('/signup', async (req, res) => {
+const signup = async (req, res) => {
     try {
         const { username, password } = req.body;
         const email = (req.body.email || '').trim().toLowerCase();
@@ -53,32 +26,33 @@ router.post('/signup', async (req, res) => {
             return res.render('signup', { message: 'Enter valid details. Password must contain at least 8 characters.' });
         }
 
-        const user = await User.findOne({ email });
+        let user = await User.findOne({ email });
 
-        if (user) {
+        if (user && user.isVerified) {
             return res.render('signup', { message: 'Email already registered' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const pendingUser = await PendingUser.findOneAndUpdate(
-            { email },
-            {
+        if (user) {
+            const matches = await bcrypt.compare(password, user.password);
+            if (!matches) {
+                return res.render('signup', { message: 'This email already has a signup request. Use the original password to resend verification.' });
+            }
+        } else {
+            user = await User.create({
                 username: username.trim(),
                 email,
-                password: hashedPassword,
-                expiresAt: new Date(Date.now() + 15 * 60 * 1000)
-            },
-            { upsert: true, new: true, runValidators: true }
-        );
+                password: await bcrypt.hash(password, 10),
+                isVerified: false
+            });
+        }
 
         const token = jwt.sign(
-            { id: pendingUser.id, email, purpose: 'verify' },
+            { id: user.id, email: user.email, version: user.tokenVersion, purpose: 'verify' },
             process.env.JWT_SECRET,
             { expiresIn: '15m' }
         );
 
-        const link = `${process.env.BASE_URL || 'http://localhost:8000'}/verify-email/${token}`;
+        const link = `${process.env.BASE_URL || `http://localhost:${process.env.PORT || 7000}`}/verify-email/${token}`;
 
         await mailer.sendMail({
             from: process.env.EMAIL_USER,
@@ -93,9 +67,9 @@ router.post('/signup', async (req, res) => {
         console.log(error);
         res.render('signup', { message: 'Signup failed. Please try again.' });
     }
-});
+};
 
-router.get('/verify-email/:token', async (req, res) => {
+const verifyEmail = async (req, res) => {
     try {
         const data = jwt.verify(req.params.token, process.env.JWT_SECRET);
 
@@ -103,21 +77,15 @@ router.get('/verify-email/:token', async (req, res) => {
             return res.render('login', { message: 'Invalid verification link' });
         }
 
-        const pendingUser = await PendingUser.findById(data.id);
+        const user = await User.findById(data.id);
 
-        if (!pendingUser || pendingUser.email !== data.email || pendingUser.expiresAt <= new Date()) {
-            return res.render('login', { message: 'Verification link expired' });
+        if (!user || user.email !== data.email || user.isVerified || user.tokenVersion !== data.version) {
+            return res.render('login', { message: 'Invalid or already used verification link' });
         }
 
-        let user = await User.findOne({ email: pendingUser.email });
-
-        if (!user) {
-            user = await User.create({
-                username: pendingUser.username,
-                email: pendingUser.email,
-                password: pendingUser.password
-            });
-        }
+        user.isVerified = true;
+        user.tokenVersion += 1; // Make the verification link single-use.
+        await user.save();
 
         createLoginCookie(res, user);
         res.redirect('/dashboard');
@@ -126,9 +94,9 @@ router.get('/verify-email/:token', async (req, res) => {
         console.log(error);
         res.render('login', { message: 'Invalid or expired verification link' });
     }
-});
+};
 
-router.post('/login', async (req, res) => {
+const login = async (req, res) => {
     try {
         const email = (req.body.email || '').trim().toLowerCase();
         const password = req.body.password || '';
@@ -145,6 +113,10 @@ router.post('/login', async (req, res) => {
             return res.render('login', { message: 'Invalid email or password' });
         }
 
+        if (!user.isVerified) {
+            return res.render('login', { message: 'Verify your email before logging in. You can resend verification from signup.' });
+        }
+
         createLoginCookie(res, user);
         res.redirect('/dashboard');
 
@@ -152,21 +124,21 @@ router.post('/login', async (req, res) => {
         console.log(error);
         res.render('login', { message: 'Login failed' });
     }
-});
+};
 
-router.post('/forgot-password', async (req, res) => {
+const forgotPassword = async (req, res) => {
     try {
         const email = (req.body.email || '').trim().toLowerCase();
         const user = await User.findOne({ email });
 
-        if (user) {
+        if (user && user.isVerified) {
             const token = jwt.sign(
                 { id: user.id, version: user.tokenVersion, purpose: 'reset' },
                 process.env.JWT_SECRET,
                 { expiresIn: '15m' }
             );
 
-            const link = `${process.env.BASE_URL || 'http://localhost:8000'}/reset-password/${token}`;
+            const link = `${process.env.BASE_URL || `http://localhost:${process.env.PORT || 7000}`}/reset-password/${token}`;
 
             await mailer.sendMail({
                 from: process.env.EMAIL_USER,
@@ -184,9 +156,9 @@ router.post('/forgot-password', async (req, res) => {
         console.log(error);
         res.render('forgot-password', { message: 'Could not send reset email' });
     }
-});
+};
 
-router.get('/reset-password/:token', async (req, res) => {
+const showResetPassword = async (req, res) => {
     try {
         const data = jwt.verify(req.params.token, process.env.JWT_SECRET);
 
@@ -208,9 +180,9 @@ router.get('/reset-password/:token', async (req, res) => {
     } catch (error) {
         res.render('login', { message: 'Invalid or expired reset link' });
     }
-});
+};
 
-router.post('/reset-password/:token', async (req, res) => {
+const resetPassword = async (req, res) => {
     try {
         const data = jwt.verify(req.params.token, process.env.JWT_SECRET);
 
@@ -245,6 +217,6 @@ router.post('/reset-password/:token', async (req, res) => {
         console.log(error);
         res.render('login', { message: 'Invalid or expired reset link' });
     }
-});
+};
 
-module.exports = { router };
+module.exports = { home, showSignup, showLogin, showForgotPassword, signup, verifyEmail, login, forgotPassword, showResetPassword, resetPassword };
