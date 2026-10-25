@@ -1,64 +1,16 @@
 <%- include('partials/head', { title: 'Products' }) %>
-  <%- include('partials/header') %>
-
-    <main class="max-w-6xl mx-auto px-5 py-10">
-      <h1 class="text-3xl font-bold">Explore Products</h1>
-      <p class="text-gray-600 mt-2 mb-8">
-        Discover gaming gear, accessories, and more.
-      </p>
-
-      <% if (products.length===0) { %>
-        <p>No products available yet.</p>
-        <% } else { %>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            <% products.forEach(product=> { %>
-              <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-900">
-
-                <% if (product.image) { %>
-                  <img src="<%= product.image %>" alt="<%= product.name %>"
-                    class="w-full h-48 object-contain bg-gray-50 rounded mb-4" loading="lazy">
-                  <% } %>
-
-                    <h2 class="font-semibold text-lg">
-                      <%= product.name %>
-                    </h2>
-                    <p class="text-sm text-gray-500 mt-1">
-                      <%= product.category %>
-                    </p>
-                    <p class="text-sm text-gray-600 mt-2">
-                      <%= product.description %>
-                    </p>
-                    <p class="font-bold text-xl mt-3">₹<%= product.price.toLocaleString('en-IN') %>
-                    </p>
-                    <p class="text-sm mt-2">Stock: <%= product.stock %>
-                    </p>
-
-
-                    <div class="flex gap-2 mt-4">
-
-                      <button type="button" class="flex-1 bg-gray-900 text-white px-4 py-2 rounded">
-              BUY
-                      </button>
-
-                      <button class="flex-1 border border-gray-900 px-4 py-2 rounded text-center hover:bg-gray-100">
-                        View Details
-                   </button>
-                    </div>
-
-
-              </div>
-              <% }) %>
-              <button>load more</button>
-
-          </div>
-          <% } %>
-
-            <form method="POST" action="/logout" class="mt-10">
-              <button class="border border-gray-900 rounded px-5 py-2 hover:bg-gray-100">
-                Log out
-              </button>
-            </form>
-    </main>
-
-   
+<%- include('partials/header') %>
+<main class="max-w-6xl mx-auto px-5 py-10">
+  <h1 class="text-3xl font-bold">Explore Products</h1>
+  <p class="text-gray-600 mt-2 mb-8">Discover gaming gear, accessories, and more.</p>
+  <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <%- include('partials/product-cards', { products }) %>
+  </div>
+  <% if (!products.length) { %><p>No products available yet.</p><% } %>
+  <div class="text-center mt-8">
+    <button id="load-more" type="button" data-cursor="<%= nextCursor || '' %>" class="bg-gray-900 text-white px-5 py-2 rounded <%= nextCursor ? '' : 'hidden' %>">Load More</button>
+    <p id="load-error" class="text-red-600 mt-2" role="status"></p>
+  </div>
+</main>
+<script src="/pagination.js" defer></script>
+<%- include('partials/footer') %>

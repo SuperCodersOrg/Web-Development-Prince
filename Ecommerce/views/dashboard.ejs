@@ -1,4 +1,3 @@
-
 <%- include('partials/head', { title: 'Dashboard' }) %>
 <%- include('partials/header') %>
 
@@ -7,7 +6,7 @@
   <% if (page === 'dashboard') { %>
 
     <h1 class="text-3xl font-bold">
-      Welcome, <%= user.username %>!
+      <% if (user) { %>Welcome, <%= user.username %>!<% } else { %>Welcome to CARTFORGE!<% } %>
     </h1>
 
     <p class="text-gray-600 mt-2">
@@ -68,14 +67,14 @@
             Stock: <%= product.stock %>
           </p>
 
-          <button
+          <button type="button" onclick="addToCart('<%= product._id %>')"
             class="w-full bg-gray-900 text-white py-2 rounded mt-4 hover:bg-gray-700">
             Add to Cart
           </button>
-          <button
-            class="w-full bg-gray-900 text-white py-2 rounded mt-4 hover:bg-gray-700">
+          <a href="/products/<%= product._id %>"
+            class="block text-center w-full border border-gray-900 py-2 rounded mt-4 hover:bg-gray-100">
             View Details
-          </button>
+          </a>
 
         </div>
 
@@ -125,11 +124,13 @@
 
   <% } %>
 
+  <% if (user) { %>
   <form method="POST" action="/logout" class="mt-10">
     <button class="border border-gray-900 rounded px-5 py-2 hover:bg-gray-100">
       Log out
     </button>
   </form>
+  <% } %>
 
 </main>
 
